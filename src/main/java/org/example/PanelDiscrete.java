@@ -17,6 +17,7 @@ public class PanelDiscrete extends JPanel {
         TreeMap<Double, Integer> freq = new TreeMap<>();
         for (double v : data) freq.put(v, freq.getOrDefault(v, 0) + 1);
 
+        // Ліва частина: Таблиця + Звіт
         String[] columns = {"Значення (xi)", "Частота (ni)", "Відн. част. (wi)"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         for (Map.Entry<Double, Integer> entry : freq.entrySet()) {
@@ -27,12 +28,14 @@ public class PanelDiscrete extends JPanel {
         leftPanel.add(new JScrollPane(StyleTheme.applyTableStyle(new JTable(model))));
         leftPanel.add(new JScrollPane(StyleTheme.applyTextStyle(Calculations.getDiscreteReport(data, freq))));
 
-        JPanel rightPanel = new JPanel(new GridLayout(2, 1, 0, 10));
-        rightPanel.add(StyleTheme.applyChartStyle(ChartFactoryHelper.createPolygon(freq)));
-        rightPanel.add(StyleTheme.applyChartStyle(ChartFactoryHelper.createStepCDF(freq)));
+        // Права частина: Вкладки з графіками
+        JTabbedPane chartsTabs = new JTabbedPane();
+        chartsTabs.addTab("Полігон частот", StyleTheme.applyChartStyle(ChartFactoryHelper.createPolygon(freq, false, data.length)));
+        chartsTabs.addTab("Полігон відносних частот", StyleTheme.applyChartStyle(ChartFactoryHelper.createPolygon(freq, true, data.length)));
+        chartsTabs.addTab("Емпірична функція F(x)", StyleTheme.applyChartStyle(ChartFactoryHelper.createStepCDF(freq)));
 
         splitPane.setLeftComponent(leftPanel);
-        splitPane.setRightComponent(rightPanel);
+        splitPane.setRightComponent(chartsTabs);
         add(splitPane, BorderLayout.CENTER);
     }
 }

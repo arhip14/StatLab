@@ -42,7 +42,6 @@ public class PanelInterval extends JPanel {
 
         String[] columns = {"Інтервал", "Середина (xi*)", "Частота (ni)", "Відн. част (wi)"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
-
         for (int i = 0; i < k; i++) {
             String interval = String.format("[%.2f; %.2f)", starts[i], ends[i]);
             model.addRow(new Object[]{interval, String.format("%.4f", mids[i]), ni[i], String.format("%.4f", ni[i] / (double) n)});
@@ -52,12 +51,21 @@ public class PanelInterval extends JPanel {
         leftPanel.add(new JScrollPane(StyleTheme.applyTableStyle(new JTable(model))));
         leftPanel.add(new JScrollPane(StyleTheme.applyTextStyle(Calculations.getIntervalReport(starts, h, ni, mids, n))));
 
-        JPanel rightPanel = new JPanel(new GridLayout(2, 1, 0, 10));
-        rightPanel.add(StyleTheme.applyChartStyle(ChartFactoryHelper.createHistogram(data, k)));
-        rightPanel.add(StyleTheme.applyChartStyle(ChartFactoryHelper.createIntervalCDF(ends, ni, n)));
+        JTabbedPane chartsTabs = new JTabbedPane();
+
+        // Гістограми
+        chartsTabs.addTab("Гістограма частот", StyleTheme.applyChartStyle(ChartFactoryHelper.createHistogram(data, k)));
+        chartsTabs.addTab("Гістограма відн. частот", StyleTheme.applyChartStyle(ChartFactoryHelper.createRelativeHistogram(starts, ends, ni, n)));
+
+        // Полігони
+        chartsTabs.addTab("Полігон інтерв. (Частоти)", StyleTheme.applyChartStyle(ChartFactoryHelper.createIntervalPolygon(mids, ni, n, false)));
+        chartsTabs.addTab("Полігон інтерв. (Відносний)", StyleTheme.applyChartStyle(ChartFactoryHelper.createIntervalPolygon(mids, ni, n, true)));
+
+        // Кумулята
+        chartsTabs.addTab("Кумулята F(x)", StyleTheme.applyChartStyle(ChartFactoryHelper.createIntervalCDF(ends, ni, n)));
 
         splitPane.setLeftComponent(leftPanel);
-        splitPane.setRightComponent(rightPanel);
+        splitPane.setRightComponent(chartsTabs);
         add(splitPane, BorderLayout.CENTER);
     }
 }
